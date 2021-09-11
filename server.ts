@@ -5,7 +5,6 @@ import * as express from "express"
 const app = express();
 
 const morgan = require ('morgan');
-const bodyParser = require ('body-parser');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 
@@ -16,8 +15,8 @@ require('./_middleware/db');
 
 app.use(cookieParser());
 
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({extended: false}));
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
 
 if(process.env.NODE_ENV === 'development') {
 	app.use(cors({
