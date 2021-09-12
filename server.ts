@@ -59,4 +59,10 @@ socketIO.on('connection', socket => {
 		// socket.broadcast.emit :  메세지를 전송한 클라이언트를 제외한 모두에게
 		// io.to(id).emit : 특정 클라이언트에게만
 	});
+
+	// Leave the room if the user closes the socket
+	socket.on("disconnect", () => {
+		console.log("%s Client disconnected", socket.id)
+		socket.leave(roomId);
+	});
 });
