@@ -44,7 +44,19 @@ const socketIO = require('socket.io')(http, {
 });
 
 socketIO.on('connection', socket => {
+	const NEW_CHAT_MESSAGE_EVENT = "newChatMessage";
 	const { roomId } = socket.handshake.query;
 	socket.join(roomId);
 	console.log('/%s client connected', socket.id)
+
+	socket.on(NEW_CHAT_MESSAGE_EVENT, (data) => { //on: 데이터를 받을때
+		console.log("Message from %s", data)
+		socketIO
+			.in(roomId)
+			.emit(NEW_CHAT_MESSAGE_EVENT, data); //emit: 데이터를 보낼때
+		// io.emit : 접속된 모든 클라이언트 에게
+		// socket.emit : 메세지를 전송한 클라이언트에게만
+		// socket.broadcast.emit :  메세지를 전송한 클라이언트를 제외한 모두에게
+		// io.to(id).emit : 특정 클라이언트에게만
+	});
 });
