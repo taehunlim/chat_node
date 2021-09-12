@@ -3,6 +3,7 @@ require('dotenv').config();
 
 import * as express from "express"
 const app = express();
+const http = require('http').createServer(app);
 
 const morgan = require ('morgan');
 const cors = require('cors');
@@ -29,10 +30,21 @@ if(process.env.NODE_ENV === 'development') {
 	}))
 }
 
-
 // global error
 app.use(errorHandler);
 
 const port = process.env.PORT;
 
-app.listen(port, () => console.log(`server running on port ${port}`))
+http.listen(port, () => console.log(`server running on port ${port}`));
+
+const socketIO = require('socket.io')(http, {
+	cors: {
+		origin: "*"
+	}
+});
+
+socketIO.on('connection', socket => {
+	const { roomId } = socket.handshake.query;
+	socket.join(roomId);
+	console.log('/%s client connected', socket.id)
+});
