@@ -1,7 +1,9 @@
 
 require('dotenv').config();
 
-import * as express from "express"
+import * as express from "express";
+import * as moment from "moment";
+
 const app = express();
 const http = require('http').createServer(app);
 
@@ -33,10 +35,6 @@ if(process.env.NODE_ENV === 'development') {
 // global error
 app.use(errorHandler);
 
-const port = process.env.PORT;
-
-http.listen(port, () => console.log(`server running on port ${port}`));
-
 const socketIO = require('socket.io')(http, {
 	cors: {
 		origin: "*"
@@ -51,9 +49,15 @@ socketIO.on('connection', socket => {
 
 	socket.on(NEW_CHAT_MESSAGE_EVENT, (data) => { //on: 데이터를 받을때
 		console.log("Message from %s", data)
+		const chats = {
+			senderId: data.senderId,
+			content: data.body,
+			date: moment().format("YYYY-MM-DD"),
+			time: moment().format("HH:MM")
+		};
 		socketIO
 			.in(roomId)
-			.emit(NEW_CHAT_MESSAGE_EVENT, data); //emit: 데이터를 보낼때
+			.emit(NEW_CHAT_MESSAGE_EVENT, chats); //emit: 데이터를 보낼때
 		// io.emit : 접속된 모든 클라이언트 에게
 		// socket.emit : 메세지를 전송한 클라이언트에게만
 		// socket.broadcast.emit :  메세지를 전송한 클라이언트를 제외한 모두에게
@@ -66,3 +70,11 @@ socketIO.on('connection', socket => {
 		socket.leave(roomId);
 	});
 });
+
+const getApiAndEmit = socket => {
+	const response = new Date();
+	socket.emit("FromAPI", response)
+};
+
+const port = process.env.PORT;
+http.listen(port, () => console.log(`server running on port ${port}`));
